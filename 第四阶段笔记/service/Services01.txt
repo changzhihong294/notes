@@ -1,0 +1,622 @@
+删除classroom  server  desktop 虚拟机器
+
+######################################################
+搭建教学环境
+
+1. 创建两台虚拟机
+[root@room9pc01 ~]# clone-vm7
+Enter VM number: 8
+
+[root@room9pc01 ~]# clone-vm7
+Enter VM number: 9
+
+2.将两台虚拟机，修改名字，一个取名A  一个取名B
+
+3.利用root用户，密码：123456   登陆两台虚拟系统
+
+4. 设置虚拟机A
+       为eth0IP地址：192.168.4.7/24
+       永久的主机名：svr7.tedu.cn
+
+   设置虚拟机B
+       为eth0IP地址：192.168.4.207/24
+       永久的主机名：pc207.tedu.cn
+
+5.默认情况，教学环境。真机可以直接与clone-vm7创建的虚拟机通信，虚拟机eth0的ip地址必须为192.168.4.0/24网络中的ip地址
+
+6.进行真机远程管理两台虚拟机
+
+7.Yum仓库的设置
+
+   服务端：真机搭建Web服务，共享光盘所有内容
+
+   1.安装httpd软件
+  # rpm -q httpd
+
+   2.启动httpd服务,设置开机起动
+  # systemctl status httpd       #查看当前的状态
+  # systemctl is-enabled httpd   #查看是否是开机自起动
+  # firefox 127.0.0.1            #自己访问自己
+
+  3.挂载访问测试
+  # ls /var/www/html/rhel7
+
+  # mount /iso/rhel-server-7.4-x86_64-dvd.iso /var/www/html/rhel7/
+
+  # ls /var/www/html/rhel7
+
+  # firefox 127.0.0.1/rhel7
+
+   客户端： 虚拟机A   虚拟机B
+[root@svr7 ~]# vim /etc/yum.repos.d/rhel7.repo
+
+	[rhel7]
+	name=rhel7
+	baseurl=http://192.168.4.254/rhel7
+	enabled=1
+	gpgcheck=0
+
+
+真机上完成开机自动挂载，   光盘文件默认的文件系统为iso9660
+   vim   /etc/fstab
+
+ /var/lib/libvirt/images/iso/rhel-server-7.4-x86_64-dvd.iso   /var/www/html/rhel7   iso9660   defaults   0  0
+
+验证：
+1.将所有的loop设备全部卸载
+[root@room9pc01 ~]# df -h
+/dev/loop0      3.8G  3.8G     0  100% /var/ftp/rhel7
+/dev/loop1      3.8G  3.8G     0  100% /var/www/html/rhel7
+
+[root@room9pc01 ~]# umount /var/ftp/rhel7
+[root@room9pc01 ~]# umount /var/www/html/rhel7
+[root@room9pc01 ~]# df -h     #查看是否卸载成功
+[root@room9pc01 ~]# mount -a
+[root@room9pc01 ~]# df -h     #查看是否挂载成功
+
+######################################################
+ 自定义Yum仓库
+
+1.具备非光盘的软件包
+   将真机的数据传递给虚拟机A
+
+   # scp /路径/源文件    root@IP地址 :/路径/
+
+真机上操作：
+   # scp /root/桌面/tools.tar.gz   root@192.168.4.7:/root/
+   root@192.168.4.7's password: 
+
+2.验证在虚拟机A上,查看/root目录下是否有tools.tar.gz
+
+3.虚拟机A上，tar解包到根目录下
+[root@svr7 ~]# tar -xf  /root/tools.tar.gz -C   /
+[root@svr7 ~]# ls /
+[root@svr7 ~]# ls /tools/
+[root@svr7 ~]# ls /tools/other/
+
+4.建立仓库数据文件
+
+[root@svr7 ~]# createrepo /tools/other/
+[root@svr7 ~]# ls /tools/other/repodata/
+
+5.虚拟机A  /tools/other 是一个仓库
+[root@svr7 ~]# vim /etc/yum.repos.d/rhel7.repo 
+  [rhel7]
+  name=rhel7
+  baseurl=http://192.168.4.254/rhel7
+  enabled=1
+  gpgcheck=0
+
+  [other]
+  name=hahaxixi
+  baseurl=file:///tools/other     #指定本机为Yum仓库
+  enabled=1
+  gpgcheck=0
+[root@svr7 ~]#  yum repolist
+
+6. 使用Yum仓库
+    
+    小火车   
+  [root@svr7 ~]# yum -y install sl
+
+    星球大战背景    
+  [root@svr7 ~]# yum -y install cmatrix
+
+    猫
+  [root@svr7 ~]# yum -y install oneko
+  [root@svr7 ~]# killall oneko       #杀死所有的oneko程序
+  [root@svr7 ~]# oneko &             #放入后台运行
+
+###################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#######################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
