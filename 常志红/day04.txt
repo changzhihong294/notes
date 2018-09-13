@@ -1,0 +1,369 @@
+1. 随机生成密码
+[ 1 ]
+from random import choice
+from string import ascii_letters,digits,punctuation
+
+all_chs = ascii_letters + digits + punctuation
+
+def randpass(n=8):
+    result = ''
+    for i in range(n):
+        ch = choice(all_chs)
+        result += ch
+    return result
+
+if __name__ == '__main__':
+    print(randpass())
+    print(randpass(10))
+
+[ 2 ]
+from random import choice
+from string import ascii_letters,digits,punctuation
+
+all_chs = ascii_letters + digits + punctuation
+
+def randpass(n=8):
+    result =[choice(all_chs) for i in range(n)]
+    return ''.join(result)      #将列表的字符拼接起来
+
+if __name__ == '__main__':
+    print(randpass())
+    print(randpass(10))
+
+################################################################################################
+#https://yiyibooks.cn/			-----python / docker /Django等技术翻译文档
+[ 3 ]
+import shutil
+
+f1 = open('/etc/passwd','rb')
+f2 = open('/tmp/abcd','wb')
+
+shutil.copyfileobj(f1,f2)
+f1.close()
+f2.close()
+
+shutil.copyfile('/etc/passwd','/tmp/xyz')
+shutil.copy('/etc/passwd','/tmp')
+shutil.copy('/etc/passwd','/tmp/aabb')
+shutil.copy2('/etc/passwd','/tmp/aabbcc')
+shutil.copytree('/etc/security','/tmp/anquan')
+shutil.rmtree('/tmp/anquan/')       #删除目录，shutil没有删除文件的功能
+import  os
+os.remove('tmp/aabb')
+
+###############################################################################################
+[ 4 ]
+import keyword
+
+keyword.kwlist
+keyword.iskeyword('pass')  # 判断'pass'是否是关键字,关键字不能被覆盖
+
+################################################################################################
+[ 5 ]
+#创建文件
+# 1.  编写一个程序,要求用户输入文件名
+# 2.  如果文件已存在,要求用户重新输入
+# 3.  提示用户输入数据,每行数据先写到列表中
+# 4.  将列表数据写入到用户输入的文件名中
+
+#[思路]
+'''
+1. 思考一下，程序的运行场景
+2. 构思程序的结构，把每一个功能，写成一个函数
+3. 编写一个主程序代码，把这些函数串连起来
+4. 编写具体的函数代码部分
+'''
+import  os
+def get_fname():
+    while True:
+        fname = input('filename: ')
+        if not os.path.exists(fname):
+            break
+        print('%s already exits,Try again.' % fname)
+    return fname
+
+def get_content():
+    content = []
+    print('请输入正文，end结束。')
+    while True:
+        line = input('> ')
+        if line == 'end':
+            break
+        content.append(line)
+    return  content
+
+def wfile(fname,content):
+    with open(fname,'w') as fobj:
+        fobj.writelines(content)
+
+if __name__ == '__main__':
+    fname = get_fname()
+    content = get_content()
+    content = ['%s\n' % line for line in content]
+    wfile(fname,content)
+
+###############################'[seq]'####################################################
+[ 6 ]
+list('abcd')
+list((10,20,30))
+tuple('abcd')
+str(100)
+str((10,20,30))
+max([10,20,30])
+min([10,20,30])
+max('hello')
+
+users = ['bob','alice','john']
+for i in range(len(users)):         # [0, 1, 2]
+    print('#%s:%s' % (i, users[i]))
+
+list(enumerate(users))      #应用时不必转换
+for item in enumerate(users):
+    print('#%s:%s' % (item[0],item[1]))
+
+for ind, user in enumerate(users):      #(0，bob),(1,alice)
+    print('#%s:%s' % (ind,user))
+
+for u in reversed(users):       #反序
+    print(u)
+
+sorted(users)       #按字母排序
+
+######################################################################################
+[ 7 ]
+#字符编码：ASCII，ISO8859-1/Latin1, GB2312/GBK/GB18030
+#ISO  -> utf8
+# >>> bin(a)
+# '0b10100'
+# 检查标识符
+# 1.  程序接受用户输入
+# 2.  判断用户输入的标识符是否合法
+# 3.  用户输入的标识符不能使用关键字
+# 4.  有不合法字符,需要指明第几个字符不合法
+from string import ascii_letters,digits
+from keyword import iskeyword
+
+first_chs = ascii_letters + '_'
+other_chs = first_chs + digits
+
+def check_id(idt):
+    if iskeyword(idt):
+        return '%s is keyword' % idt        #函数有多个return，只会执行一个return
+
+    if idt[0] not in first_chs:
+        return '1st invalid.'
+
+    for ind, ch in enumerate(idt[1:]):
+        if ch not in other_chs:
+            return '第%s个字符不合法' % (ind + 2)
+    return '%s是合法的' % idt
+
+if __name__ == '__main__':
+    idt = input('待检查的标识符：')
+    print(check_id(idt))
+
+#####################################################################################
+[ 8 ]
+# 创建用户
+# 1.  编写一个程序,实现创建用户的功能
+# 2.  提示用户输入用户名
+# 3.  随机生成8位密码
+# 4.  创建用户并设置密码
+# 5.  将用户相关信息写入指定文件
+
+import sys
+import subprocess
+from randpass import randpass
+
+
+def adduser(username, password, fname):
+
+   subprocess.call('useradd %s' % username, shell=True)
+   subprocess.call(
+       'echo %s | passwd --stdin %s' % (password,username),
+       shell=True
+   )
+   user_info = '''user information:
+用户名：%s
+密  码：%s
+''' % (username, password)
+
+   with open(fname, 'a') as  fobj:
+       fobj.writelines(user_info)
+
+if __name__ == '__main__':
+    username = sys.argv[1]
+    password = randpass()
+    adduser(username,password,'/tmp/users.txt')
+
+#####################################################################################
+[ 9 ]
+#格式化输出
+# 1.  提示用户输入(多行)数据
+# 2.  假定屏幕的宽度为50,用户输入的多行数据如下显示(文本内容居中):
+astr = '\thello  '
+astr.strip()    #去除两端空白字符
+astr.lstrip()   #去除左端空白字符
+astr.rstrip()   #去除右端空白字符
+'hello.tar.gz'.split('.')
+
+hi = 'hello world'
+hi.title()
+hi.upper()
+hi.lower()
+hi.islower()
+'hao123'.isdigit()
+hi.isidentifier()
+hi.center(50)
+hi.center(50,'#')
+hi.ljust(50)
+hi.rjust(50)
+hi.startswith('he')
+hi.endswith('d')
+
+####################################################################################
+[ 10 ]
+alist = [1, 50, 60, 100]
+alist[0] = 10
+alist[1:3] = [30, 40]
+alist[3:3] = [50, 60, 70, 80, 90]
+alist.append(30)
+alist.sort()
+alist
+alist.reverse()
+alist.count(30)
+alist.remove(30)
+alist.pop()
+alist
+alist.pop(2)
+alist.extend('abc') #扩充
+alist.extend(['abc'],['xyz'])
+alist.index(50) #50的下标
+alist.insert(3, 1000)   #把1000放到下标为3的位置
+
+###################################################################################
+[ 11 ]
+# 用列表构建栈结构
+# 1.  栈是一个后进先出的结构
+# 2.  编写一个程序,用列表实现栈结构
+# 3.  需要支持压栈、出栈、查询功能
+def push_it():
+    print(push_it)
+
+def pop_it():
+    print(pop_it)
+
+def view_it():
+    print(view_it)
+def show_memu():
+    prompt = '''(0) push it
+(1) pop it
+(2) view it
+(3) exit
+Please input your choice(0/1/2/3)'''
+    while True:
+        choice = input(prompt).strip()[0]
+        if choice not in '0123':
+            print('Invalid input. Try agin.')
+            continue
+
+        if choice == '3':
+            break
+
+        if choice == '0':
+            push_it()
+        elif choice == '1':
+            pop_it()
+        else:
+            view_it()
+
+if __name__ == '__main__':
+    show_memu()
+
+'++++++++++++++++++++++++++++'
+
+def push_it():
+    print("push_it")
+
+def pop_it():
+    print('pop_it')
+
+def view_it():
+    print('view_it')
+def show_memu():
+    prompt = '''(0) push it
+(1) pop it
+(2) view it
+(3) exit
+Please input your choice(0/1/2/3)'''
+    while True:
+        cmds = {'0':push_it,'1':pop_it,'2':view_it}
+        choice = input(prompt).strip()[0]
+        if choice not in '0123':
+            print('Invalid input. Try agin.')
+            continue
+
+        if choice == '3':
+            break
+
+        cmds[choice]()
+        # if choice == '0':
+        #     push_it()
+        # elif choice == '1':
+        #     pop_it()
+        # else:
+        #     view_it()
+
+if __name__ == '__main__':
+    show_memu()
+
+
+'+++++++++++++++++++++++++++++'
+stack = []  #全局变量，从定义开始到程序结束都可见可用
+def push_it():
+    item = input('item to push: ')
+    stack.append(item)
+
+def pop_it():
+    if stack:
+        print('pop: \033[31;1m%s\033[0m' % stack.pop())
+
+def view_it():
+    print("\033[32;1m%s\033[0m" % stack)
+
+def show_memu():
+    prompt = '''(0) push it
+(1) pop it
+(2) view it
+(3) exit
+Please input your choice(0/1/2/3)'''
+    while True:
+        cmds = {'0':push_it,'1':pop_it,'2':view_it}
+        choice = input(prompt).strip()[0]
+        if choice not in '0123':
+            print('Invalid input. Try agin.')
+            continue
+
+        if choice == '3':
+            break
+
+        cmds[choice]()
+        # if choice == '0':
+        #     push_it()
+        # elif choice == '1':
+        #     pop_it()
+        # else:
+        #     view_it()
+
+if __name__ == '__main__':
+    show_memu()
+
+
+
+######################################################################################
+
+
+
+
+
+
